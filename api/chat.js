@@ -1,6 +1,3 @@
-// chat.js en /api
-
-// 👇 Importa 'fetch' si estás en Node.js (como en Vercel)
 import fetch from 'node-fetch';
 
 export default async function handler(req, res) {
@@ -10,6 +7,10 @@ export default async function handler(req, res) {
 
   const API_KEY = process.env.OPENAI_API_KEY;
   const mensajeUsuario = req.body.mensaje;
+
+  if (!API_KEY) {
+    return res.status(500).json({ error: "Falta la API Key de OpenAI" });
+  }
 
   try {
     const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -26,12 +27,15 @@ export default async function handler(req, res) {
     });
 
     const data = await openaiRes.json();
+    console.log("Respuesta OpenAI:", data);
+
     if (data.error) {
       return res.status(500).json({ error: data.error.message });
     }
 
     res.status(200).json({ respuesta: data.choices[0].message.content });
   } catch (error) {
+    console.error("Error al contactar a OpenAI:", error);
     res.status(500).json({ error: "Error al contactar a OpenAI" });
   }
 }
