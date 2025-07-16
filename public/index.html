@@ -64,58 +64,44 @@
   <div id="chat"></div>
 
   <textarea id="input" placeholder="Escribe aquí los síntomas del auto..."></textarea><br>
-  <button onclick="enviar()">Enviar</button>
+  <button id="enviarBtn">Enviar</button>
 
   <script>
-    const API_KEY = process.env.OPENAI_API_KEY;
-
-    const chat = document.getElementById("chat");
-
-    async function enviar() {
+    window.onload = function () {
+      const chat = document.getElementById("chat");
       const input = document.getElementById("input");
-      const mensaje = input.value.trim();
-      if (!mensaje) return;
+      const enviarBtn = document.getElementById("enviarBtn");
 
-      chat.innerHTML += `<div class="msg user"><strong>Tú:</strong> ${mensaje}</div>`;
-      chat.scrollTop = chat.scrollHeight;
-      input.value = "";
+      enviarBtn.onclick = async function enviar() {
+        const mensaje = input.value.trim();
+        if (!mensaje) return;
 
-      const respuesta = await llamarAPI(mensaje);
-      chat.innerHTML += `<div class="msg bot"><strong>IA:</strong> ${respuesta}</div>`;
-      chat.scrollTop = chat.scrollHeight;
-    }
+        chat.innerHTML += `<div class="msg user"><strong>Tú:</strong> ${mensaje}</div>`;
+        chat.scrollTop = chat.scrollHeight;
+        input.value = "";
 
-    async function llamarAPI(mensaje) {
-      const prompt = `
-Eres un experto en mecánica automotriz. Cuando el usuario te describa síntomas del vehículo, responde con posibles causas técnicas. Sé claro, útil y preciso. Ejemplos:
+        const respuesta = await llamarAPI(mensaje);
+        chat.innerHTML += `<div class="msg bot"><strong>IA:</strong> ${respuesta}</div>`;
+        chat.scrollTop = chat.scrollHeight;
+      };
 
-Usuario: El auto echa humo negro y no tiene fuerza.
-IA: Puede deberse a inyectores sucios, mezcla rica de combustible o problemas en el sensor MAF. Revisa también el filtro de aire.
+      async function llamarAPI(mensaje) {
+        try {
+          const res = await fetch("/api/chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ mensaje })
+          });
 
-Usuario: ${mensaje}
-IA:
-      `.trim();
-
-      try {
-        const res = await fetch("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${API_KEY}`
-          },
-          body: JSON.stringify({
-            model: "gpt-4",
-            messages: [{ role: "user", content: prompt }],
-            temperature: 0.6
-          })
-        });
-
-        const data = await res.json();
-        return data.choices[0].message.content.trim();
-      } catch (e) {
-        return "⚠️ Error al contactar a la IA.";
+          const data = await res.json();
+          return data.respuesta || "⚠️ No se recibió respuesta válida.";
+        } catch (e) {
+          return "⚠️ Error al contactar al servidor.";
+        }
       }
-    }
+    };
   </script>
 </body>
 </html>

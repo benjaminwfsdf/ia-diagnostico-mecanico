@@ -3,8 +3,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Sólo POST permitido' });
   }
 
- const API_KEY = process.env.OPENAI_API_KEY;
-
+  const API_KEY = process.env.OPENAI_API_KEY;
   const mensajeUsuario = req.body.mensaje;
 
   try {
@@ -22,8 +21,12 @@ export default async function handler(req, res) {
     });
 
     const data = await openaiRes.json();
+    if (data.error) {
+      return res.status(500).json({ error: data.error.message });
+    }
+
     res.status(200).json({ respuesta: data.choices[0].message.content });
-  } catch (e) {
+  } catch (error) {
     res.status(500).json({ error: "Error al contactar a OpenAI" });
   }
 }
