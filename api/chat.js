@@ -1,3 +1,8 @@
+// chat.js en /api
+
+// 👇 Importa 'fetch' si estás en Node.js (como en Vercel)
+import fetch from 'node-fetch';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Sólo POST permitido' });
