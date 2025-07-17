@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   const mensajeUsuario = req.body.mensaje;
 
   if (!API_KEY) {
-    return res.status(500).json({ error: "Falta la API Key de OpenAI" });
+    return res.status(500).json({ error: 'No se encontró la API Key de OpenAI.' });
   }
 
   try {
@@ -27,15 +27,15 @@ export default async function handler(req, res) {
     });
 
     const data = await openaiRes.json();
-    console.log("Respuesta OpenAI:", data);
 
     if (data.error) {
+      console.error("OpenAI error:", data.error);
       return res.status(500).json({ error: data.error.message });
     }
 
     res.status(200).json({ respuesta: data.choices[0].message.content });
   } catch (error) {
-    console.error("Error al contactar a OpenAI:", error);
-    res.status(500).json({ error: "Error al contactar a OpenAI" });
+    console.error("Server error:", error);
+    res.status(500).json({ error: "Error al contactar a OpenAI", detalle: error.message });
   }
 }
