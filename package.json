@@ -2,9 +2,6 @@
   "name": "ia-scanner",
   "version": "1.0.0",
   "type": "module",
-  "scripts": {
-    "test": "echo \"No test specified\" && exit 0"
-  },
   "dependencies": {
     "node-fetch": "^3.3.2"
   }
